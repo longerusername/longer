@@ -10,13 +10,9 @@
   body {
     background: #080808;
     color: #e8e8e8;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
     font-family: 'Courier New', monospace;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 
   canvas#bg {
@@ -39,18 +35,24 @@
     transform: translate(-50%, -50%);
     transition: width 0.15s cubic-bezier(0.34,1.56,0.64,1),
                 height 0.15s cubic-bezier(0.34,1.56,0.64,1);
-    will-change: transform;
   }
-
   #cursor-ring.clicked { width: 14px; height: 14px; }
 
-  #scene {
+  /* Page 1 — hero */
+  #page1 {
     position: relative;
-    z-index: 10;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    z-index: 10;
+  }
+
+  #scene {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     gap: 56px;
     user-select: none;
   }
@@ -63,8 +65,7 @@
 
   .ascii-layer {
     position: absolute;
-    top: 50%;
-    left: 50%;
+    top: 50%; left: 50%;
     transform: translate(-50%, -50%);
     white-space: pre;
     line-height: 1;
@@ -93,42 +94,172 @@
   }
 
   .tagline {
-    font-family: 'Courier New', monospace;
     font-size: clamp(11px, 1.3vw, 15px);
     letter-spacing: 0.38em;
     text-transform: uppercase;
-    color: rgba(210, 210, 210, 0.5);
+    color: rgba(210,210,210,0.5);
   }
 
   .discord-tag {
-    font-family: 'Courier New', monospace;
     font-size: clamp(10px, 1vw, 12px);
     letter-spacing: 0.2em;
-    color: rgba(120, 130, 175, 0.55);
-    border: 1px solid rgba(120, 130, 175, 0.18);
+    color: rgba(120,130,175,0.55);
+    border: 1px solid rgba(120,130,175,0.18);
     padding: 5px 14px;
     border-radius: 3px;
   }
+  .discord-tag::before { content: '@ '; color: rgba(114,137,218,0.55); }
 
-  .discord-tag::before { content: '@ '; color: rgba(114, 137, 218, 0.55); }
+  .scroll-hint {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: rgba(180,180,180,0.22);
+    animation: bob 2.6s ease-in-out infinite;
+  }
+  @keyframes bob {
+    0%,100% { opacity:.22; transform:translateX(-50%) translateY(0); }
+    50%      { opacity:.5;  transform:translateX(-50%) translateY(5px); }
+  }
 
+  /* Page 2 — content */
+  #page2 {
+    position: relative;
+    z-index: 10;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 80px;
+    padding: 100px 24px;
+  }
+
+  .section-label {
+    font-size: 9px;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: rgba(180,180,180,0.28);
+    margin-bottom: 10px;
+  }
+
+  /* Achievements */
+  .achievements { display: flex; flex-direction: column; gap: 32px; width: 100%; max-width: 520px; }
+
+  .achievement {
+    display: flex;
+    align-items: stretch;
+    gap: 18px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.55s ease, transform 0.55s ease;
+  }
+  .achievement.visible { opacity: 1; transform: translateY(0); }
+  .achievement:nth-child(2) { transition-delay: 0.15s; }
+
+  .ach-bar {
+    width: 2px;
+    background: rgba(220,220,220,0.15);
+    border-radius: 1px;
+    flex-shrink: 0;
+  }
+
+  .ach-body { display: flex; flex-direction: column; gap: 5px; }
+
+  .ach-title {
+    font-size: clamp(13px, 1.6vw, 18px);
+    color: rgba(235,235,235,0.88);
+    letter-spacing: 0.03em;
+    line-height: 1.4;
+  }
+
+  .ach-sub {
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(150,150,150,0.38);
+  }
+
+  /* Divider */
+  .divider {
+    width: 100%;
+    max-width: 520px;
+    height: 1px;
+    background: rgba(255,255,255,0.05);
+    opacity: 0;
+    transition: opacity 0.6s ease 0.1s;
+  }
+  .divider.visible { opacity: 1; }
+
+  /* Countdown */
+  .countdown-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 22px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.55s ease 0.2s, transform 0.55s ease 0.2s;
+  }
+  .countdown-block.visible { opacity:1; transform:translateY(0); }
+
+  .countdown-units {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+  }
+
+  .cd-unit { display: flex; flex-direction: column; align-items: center; gap: 7px; }
+
+  .cd-num {
+    font-size: clamp(32px, 5vw, 58px);
+    color: rgba(238,238,238,0.92);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    min-width: 2ch;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .cd-lbl {
+    font-size: 9px;
+    letter-spacing: 0.38em;
+    text-transform: uppercase;
+    color: rgba(140,140,140,0.32);
+  }
+
+  .cd-sep {
+    font-size: clamp(24px, 3.5vw, 44px);
+    color: rgba(140,140,140,0.18);
+    padding-bottom: 14px;
+    line-height: 1;
+  }
+
+  .cd-target {
+    font-size: 10px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: rgba(140,140,140,0.28);
+  }
+
+  /* Vignette + scanlines */
   body::before {
     content: '';
     position: fixed;
     inset: 0;
-    background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.65) 100%);
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.6) 100%);
     pointer-events: none;
     z-index: 5;
   }
-
   body::after {
     content: '';
     position: fixed;
     inset: 0;
-    background: repeating-linear-gradient(
-      0deg, transparent, transparent 2px,
-      rgba(0,0,0,0.035) 2px, rgba(0,0,0,0.035) 4px
-    );
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.032) 2px, rgba(0,0,0,0.032) 4px);
     pointer-events: none;
     z-index: 6;
   }
@@ -139,15 +270,58 @@
 <canvas id="bg"></canvas>
 <div id="cursor-ring"></div>
 
-<div id="scene">
-  <div class="ascii-wrapper" id="asciiWrapper"></div>
-  <div class="bottom-section">
-    <div class="tagline">bring back a2</div>
-    <div class="discord-tag">longerusername</div>
+<!-- Hero -->
+<div id="page1">
+  <div id="scene">
+    <div class="ascii-wrapper" id="asciiWrapper"></div>
+    <div class="bottom-section">
+      <div class="tagline">bring back a2</div>
+      <div class="discord-tag">longerusername</div>
+    </div>
   </div>
+  <div class="scroll-hint">scroll</div>
+</div>
+
+<!-- Second section -->
+<div id="page2">
+
+  <div class="achievements">
+    <div class="section-label">things i've done</div>
+    <div class="achievement" id="ach1">
+      <div class="ach-bar"></div>
+      <div class="ach-body">
+        <div class="ach-title">First person to get Orion Drift Unreal Project</div>
+        <div class="ach-sub">achievement</div>
+      </div>
+    </div>
+    <div class="achievement" id="ach2">
+      <div class="ach-bar"></div>
+      <div class="ach-body">
+        <div class="ach-title">Spectator Bypass</div>
+        <div class="ach-sub">achievement</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider" id="div1"></div>
+
+  <div class="countdown-block" id="cdBlock">
+    <div class="section-label">countdown to april 30, 2026</div>
+    <div class="countdown-units">
+      <div class="cd-unit"><div class="cd-num" id="cd-d">--</div><div class="cd-lbl">days</div></div>
+      <div class="cd-sep">:</div>
+      <div class="cd-unit"><div class="cd-num" id="cd-h">--</div><div class="cd-lbl">hrs</div></div>
+      <div class="cd-sep">:</div>
+      <div class="cd-unit"><div class="cd-num" id="cd-m">--</div><div class="cd-lbl">min</div></div>
+      <div class="cd-sep">:</div>
+      <div class="cd-unit"><div class="cd-num" id="cd-s">--</div><div class="cd-lbl">sec</div></div>
+    </div>
+  </div>
+
 </div>
 
 <script>
+// ── ASCII ──────────────────────────────────────────────────────────────────────
 const ASCII = ` \u2588\u2588\u2557      \u2588\u2588\u2588\u2588\u2588\u2588\u2557 \u2588\u2588\u2588\u2557   \u2588\u2588\u2557 \u2588\u2588\u2588\u2588\u2588\u2588\u2557 \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2557\u2588\u2588\u2588\u2588\u2588\u2588\u2557 
  \u2588\u2588\u2551     \u2588\u2588\u2554\u2550\u2550\u2550\u2588\u2588\u2557\u2588\u2588\u2588\u2588\u2557  \u2588\u2588\u2551\u2588\u2588\u2554\u2550\u2550\u2550\u2550\u255d \u2588\u2588\u2554\u2550\u2550\u2550\u2550\u255d\u2588\u2588\u2554\u2550\u2550\u2588\u2588\u2557
  \u2588\u2588\u2551     \u2588\u2588\u2551   \u2588\u2588\u2551\u2588\u2588\u2554\u2588\u2588\u2557 \u2588\u2588\u2551\u2588\u2588\u2551  \u2588\u2588\u2588\u2557\u2588\u2588\u2588\u2588\u2588\u2557  \u2588\u2588\u2588\u2588\u2588\u2588\u2554\u255d
@@ -174,19 +348,18 @@ const layerEls = LAYERS.map(l => {
   return el;
 });
 
-// Cursor
+// ── Cursor ────────────────────────────────────────────────────────────────────
 const ring = document.getElementById('cursor-ring');
 let mx = window.innerWidth / 2, my = window.innerHeight / 2;
-document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  ring.style.left = mx + 'px';
+  ring.style.top  = my + 'px';
+});
 document.addEventListener('mousedown', () => ring.classList.add('clicked'));
 document.addEventListener('mouseup',   () => ring.classList.remove('clicked'));
 
-document.addEventListener('mousemove', e => {
-  ring.style.left = e.clientX + 'px';
-  ring.style.top  = e.clientY + 'px';
-});
-
-// Parallax
+// ── Parallax ──────────────────────────────────────────────────────────────────
 let tX = 0, tY = 0, cX = 0, cY = 0;
 document.addEventListener('mousemove', e => {
   tX = (e.clientX / window.innerWidth  - 0.5) * 2;
@@ -194,26 +367,20 @@ document.addEventListener('mousemove', e => {
 });
 
 const scene = document.getElementById('scene');
-
 (function parallaxLoop() {
   cX += (tX - cX) * 0.055;
   cY += (tY - cY) * 0.055;
-
   LAYERS.forEach((l, i) => {
     const d = l.depth;
-    // shadow layers offset in the opposite direction, simulating extruded 3D text
     const px = cX * 16 - d * (2.4 + Math.abs(cX) * 1.4);
     const py = cY * 10 - d * (1.6 + Math.abs(cY) * 0.9);
     layerEls[i].style.transform = `translate(calc(-50% + ${px}px), calc(-50% + ${py}px))`;
   });
-
-  scene.style.transform =
-    `perspective(900px) rotateY(${cX * 4}deg) rotateX(${-cY * 2.5}deg)`;
-
+  scene.style.transform = `perspective(900px) rotateY(${cX*4}deg) rotateX(${-cY*2.5}deg)`;
   requestAnimationFrame(parallaxLoop);
 })();
 
-// Background canvas
+// ── Background canvas ─────────────────────────────────────────────────────────
 const canvas = document.getElementById('bg');
 const ctx = canvas.getContext('2d');
 let W, H;
@@ -233,11 +400,9 @@ resize();
 let t = 0;
 (function draw() {
   t += 0.008;
-
   ctx.fillStyle = '#080808';
-  ctx.fillRect(0,0,W,H);
+  ctx.fillRect(0, 0, W, H);
 
-  // Dot grid with cursor influence
   const INFL = Math.min(W,H)*0.35;
   dots.forEach(d => {
     const ox = d.bx + Math.sin(t*0.7 + d.bx*0.004)*7;
@@ -247,31 +412,65 @@ let t = 0;
     const pull = Math.max(0, 1-dist/INFL);
     d.x = ox + dx*pull*0.22;
     d.y = oy + dy*pull*0.22;
-    const alpha = d.base + pull*0.4;
-    const rad   = 0.85 + pull*2.5;
     ctx.beginPath();
-    ctx.arc(d.x, d.y, rad, 0, Math.PI*2);
-    ctx.fillStyle = `rgba(175,182,215,${alpha})`;
+    ctx.arc(d.x, d.y, 0.85 + pull*2.5, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(175,182,215,${d.base + pull*0.4})`;
     ctx.fill();
   });
 
-  // Grid lines
   ctx.lineWidth = 0.5;
   for (let r=0; r<=ROWS; r++) {
-    ctx.beginPath();
-    ctx.strokeStyle = `rgba(90,100,135,0.05)`;
+    ctx.beginPath(); ctx.strokeStyle = 'rgba(90,100,135,0.05)';
     for (let c=0; c<=COLS; c++) { const d=dots[r*(COLS+1)+c]; c===0?ctx.moveTo(d.x,d.y):ctx.lineTo(d.x,d.y); }
     ctx.stroke();
   }
   for (let c=0; c<=COLS; c++) {
-    ctx.beginPath();
-    ctx.strokeStyle = `rgba(90,100,135,0.05)`;
+    ctx.beginPath(); ctx.strokeStyle = 'rgba(90,100,135,0.05)';
     for (let r=0; r<=ROWS; r++) { const d=dots[r*(COLS+1)+c]; r===0?ctx.moveTo(d.x,d.y):ctx.lineTo(d.x,d.y); }
     ctx.stroke();
   }
-
   requestAnimationFrame(draw);
 })();
+
+// ── Scroll reveal ─────────────────────────────────────────────────────────────
+const revealEls = [
+  document.getElementById('ach1'),
+  document.getElementById('ach2'),
+  document.getElementById('div1'),
+  document.getElementById('cdBlock'),
+];
+
+function checkReveal() {
+  const vh = window.innerHeight;
+  revealEls.forEach(el => {
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    if (rect.top < vh * 0.88) el.classList.add('visible');
+  });
+}
+window.addEventListener('scroll', checkReveal);
+checkReveal();
+
+// ── Countdown ─────────────────────────────────────────────────────────────────
+const TARGET = new Date('2026-04-30T00:00:00');
+function pad(n) { return String(Math.floor(n)).padStart(2,'0'); }
+function updateCountdown() {
+  const diff = TARGET - Date.now();
+  if (diff <= 0) {
+    document.getElementById('cd-d').textContent = '00';
+    document.getElementById('cd-h').textContent = '00';
+    document.getElementById('cd-m').textContent = '00';
+    document.getElementById('cd-s').textContent = '00';
+    return;
+  }
+  const s = diff / 1000;
+  document.getElementById('cd-d').textContent = pad(s / 86400);
+  document.getElementById('cd-h').textContent = pad((s % 86400) / 3600);
+  document.getElementById('cd-m').textContent = pad((s % 3600) / 60);
+  document.getElementById('cd-s').textContent = pad(s % 60);
+}
+updateCountdown();
+setInterval(updateCountdown, 1000);
 </script>
 </body>
 </html>
